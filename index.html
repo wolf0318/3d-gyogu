@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>말로 만든 3D 교구</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --ink: #1b2330;
+    --ink-soft: #5a6577;
+    --line: #e1e6ee;
+    --blue: #2f6fec;
+    --blue-soft: #e8f0ff;
+    --stage: #eef2f8;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 16px 56px; }
+  header { margin-bottom: 28px; }
+  .eyebrow { margin: 0 0 6px; color: var(--blue); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+  h1 { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.25; letter-spacing: -0.02em; }
+  .lead { margin: 12px 0 0; color: var(--ink-soft); font-size: 17px; max-width: 46em; }
+  .steps {
+    display: flex; flex-wrap: wrap; gap: 8px 20px;
+    margin: 20px 0 0; padding: 0; list-style: none; counter-reset: step;
+  }
+  .steps li { counter-increment: step; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
+  .steps li::before {
+    content: counter(step);
+    display: inline-grid; place-items: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--blue); color: #fff; font-size: 13px; font-weight: 700;
+  }
+
+  .models { display: grid; gap: 24px; }
+  @media (min-width: 900px) { .models { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .stage { position: relative; background: var(--stage); }
+  model-viewer {
+    display: block; width: 100%;
+    aspect-ratio: 4 / 3;
+    min-height: 280px;
+    background: transparent;
+    --poster-color: transparent;
+  }
+  .stage-tools {
+    position: absolute; right: 10px; bottom: 10px;
+    display: flex; gap: 6px;
+  }
+  .stage-tools button {
+    font: inherit; font-size: 14px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.92); color: var(--ink);
+    cursor: pointer;
+  }
+  .stage-tools button:hover { border-color: var(--blue); color: var(--blue); }
+  .badge {
+    position: absolute; left: 12px; top: 12px;
+    font-size: 13px; font-weight: 700; color: var(--blue);
+    background: rgba(255,255,255,0.92); border-radius: 999px; padding: 3px 10px;
+  }
+
+  .body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .body h2 { margin: 0; font-size: 21px; letter-spacing: -0.01em; }
+  .look { margin: 0; color: var(--ink-soft); font-size: 16px; }
+  .prompt {
+    margin: 0; padding: 12px 14px;
+    background: var(--blue-soft); border-radius: 10px;
+  }
+  .prompt-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .prompt-label { font-size: 13px; font-weight: 700; color: var(--blue); }
+  .prompt p { margin: 0; font-size: 15.5px; }
+  .copy {
+    font: inherit; font-size: 13px; font-weight: 600;
+    padding: 2px 10px; border-radius: 999px;
+    border: 1px solid #c9d8f7; background: #fff; color: var(--blue); cursor: pointer;
+  }
+
+  .stage.space { background: radial-gradient(circle at 50% 40%, #1c2742 0%, #080c18 75%); }
+  .stage.space .badge { background: rgba(255,255,255,0.14); color: #dbe6ff; }
+  .stage-tools button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .hotspot {
+    font: inherit; font-size: 13px; font-weight: 700; line-height: 1.3;
+    padding: 3px 9px; border-radius: 999px; border: none;
+    background: rgba(255,255,255,0.92); color: var(--ink);
+    white-space: nowrap; pointer-events: none;
+    transform: translateY(-100%);
+  }
+  .hotspot[hidden], .ring[hidden] { display: none; }
+  #mv-earth { --min-hotspot-opacity: 1; }
+  .ring {
+    display: block; padding: 0; background: none; pointer-events: none;
+    border: 2px solid rgba(255,255,255,0.85); border-radius: 50%;
+  }
+  .ring.big { width: 30px; height: 30px; }
+  .ring.small { width: 16px; height: 16px; }
+  .credit { margin: 0; color: var(--ink-soft); font-size: 13px; }
+
+  footer { margin-top: 36px; color: var(--ink-soft); font-size: 14px; }
+  footer p { margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">AIEP 교내 연수 자료</p>
+    <h1>말로 만든 3D 교구</h1>
+    <p class="lead">Claude에게 말로 부탁해 블렌더로 만든 모형입니다. 손가락이나 마우스로 끌면 돌아가고, 두 손가락으로 벌리면 커집니다.</p>
+    <ol class="steps">
+      <li>Claude에게 부탁</li>
+      <li>Claude가 블렌더로 제작</li>
+      <li>웹에서 돌려 보기</li>
+    </ol>
+  </header>
+
+  <main class="models">
+
+    <article class="card">
+      <div class="stage">
+        <model-viewer id="mv-snowman"
+          src="models/snowman.glb?v=1"
+          alt="모자와 빨간 목도리를 한 눈사람과 원뿔 모양 나무 세 그루"
+          camera-controls touch-action="pan-y"
+          camera-orbit="-20deg 75deg auto"
+          shadow-intensity="1" exposure="1.05"
+          interaction-prompt="auto">
+        </model-viewer>
+        <span class="badge">연결 시험</span>
+        <div class="stage-tools">
+          <button type="button" data-reset="mv-snowman">처음 시점</button>
+        </div>
+      </div>
+      <div class="body">
+        <h2>눈사람과 나무</h2>
+        <p class="look">블렌더 연결을 시험하며 처음 만든 장면입니다. 공, 원뿔, 원기둥, 고리 모양만 써서 만들었습니다.</p>
+        <div class="prompt">
+          <div class="prompt-head">
+            <span class="prompt-label">부탁 문장 예시</span>
+            <button type="button" class="copy">복사</button>
+          </div>
+          <p>블렌더에 눈사람 하나와 뒤에 나무 세 그루가 있는 겨울 장면을 만들어 줘. 눈사람은 검은 모자를 쓰고 빨간 목도리를 하고, 나무는 단순한 원뿔 모양으로 해 줘.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="stage">
+        <model-viewer id="mv-net"
+          src="models/cuboid_net.glb?v=2"
+          alt="가로 4, 세로 3, 높이 2인 직육면체의 전개도가 상자로 접혔다가 펼쳐지는 모형"
+          camera-controls touch-action="pan-y"
+          camera-orbit="25deg 55deg auto"
+          autoplay
+          shadow-intensity="1" exposure="1.05"
+          interaction-prompt="none">
+        </model-viewer>
+        <span class="badge">수학</span>
+        <div class="stage-tools">
+          <button type="button" data-toggle="mv-net">멈춤</button>
+          <button type="button" data-reset="mv-net">처음 시점</button>
+        </div>
+      </div>
+      <div class="body">
+        <h2>직육면체 전개도</h2>
+        <p class="look">펼친 전개도가 상자로 접혔다가 다시 펼쳐집니다. 색이 같은 두 면은 서로 마주 보는 면입니다.</p>
+        <div class="prompt">
+          <div class="prompt-head">
+            <span class="prompt-label">부탁 문장 예시</span>
+            <button type="button" class="copy">복사</button>
+          </div>
+          <p>가로 4, 세로 3, 높이 2인 직육면체의 전개도가 상자로 접혔다가 다시 펼쳐지는 움직이는 모형을 만들어 줘. 마주 보는 면은 같은 색으로 칠해 줘.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="stage space">
+        <model-viewer id="mv-earth"
+          src="models/earth_moon_size.glb?v=1"
+          alt="NASA 표면 그림을 입힌 지구와 달. 실제 크기 비율"
+          camera-controls touch-action="pan-y"
+          camera-orbit="0deg 80deg auto"
+          max-camera-orbit="auto auto 200m"
+          exposure="1.1"
+          interaction-prompt="auto">
+          <span class="hotspot" slot="hotspot-size-earth" data-mode="size" data-position="0 1.25 0">지구 지름 12,742km</span>
+          <span class="hotspot" slot="hotspot-size-moon" data-mode="size" data-position="2.073 0.45 0">달 지름 3,475km</span>
+          <span class="hotspot" slot="hotspot-dist-earth" data-mode="distance" data-position="0 3 0" hidden>지구</span>
+          <span class="hotspot" slot="hotspot-dist-moon" data-mode="distance" data-position="60.34 2 0" hidden>달</span>
+          <span class="hotspot" slot="hotspot-dist-mid" data-mode="distance" data-position="30.17 2 0" hidden>약 38만 km</span>
+          <span class="ring big" slot="hotspot-ring-earth" data-mode="distance" data-position="0 0 0" hidden></span>
+          <span class="ring small" slot="hotspot-ring-moon" data-mode="distance" data-position="60.34 0 0" hidden></span>
+        </model-viewer>
+        <span class="badge">과학</span>
+        <div class="stage-tools">
+          <button type="button" class="on" data-earth-mode="size">크기 비교</button>
+          <button type="button" data-earth-mode="distance">실제 거리</button>
+          <button type="button" data-reset="mv-earth">처음 시점</button>
+        </div>
+      </div>
+      <div class="body">
+        <h2>지구와 달</h2>
+        <p class="look">달의 지름은 지구의 약 4분의 1입니다. '실제 거리'를 누르면 달이 지구 지름의 약 30배만큼 떨어진 실제 자리로 갑니다.</p>
+        <p class="credit">지구·달 표면 그림: NASA Scientific Visualization Studio</p>
+        <div class="prompt">
+          <div class="prompt-head">
+            <span class="prompt-label">부탁 문장 예시</span>
+            <button type="button" class="copy">복사</button>
+          </div>
+          <p>NASA 지구·달 표면 그림을 입혀서 지구와 달 모형을 실제 크기 비율로 만들어 줘. 나란히 놓은 것과 실제 거리만큼 떨어뜨린 것, 두 가지로 내보내 줘.</p>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <footer>
+    <p>만든 도구: 블렌더 5.3, 블렌더 재단 공식 MCP, Claude</p>
+    <p>지구·달 표면 그림: NASA Scientific Visualization Studio (svs.gsfc.nasa.gov)</p>
+    <p>2026년 11월</p>
+  </footer>
+</div>
+
+<script>
+  // "처음 시점": put the camera back where the page started.
+  document.querySelectorAll('[data-reset]').forEach((btn) => {
+    const mv = document.getElementById(btn.dataset.reset);
+    btn.addEventListener('click', () => {
+      mv.cameraOrbit = mv.getAttribute('camera-orbit') || 'auto auto auto';
+      mv.cameraTarget = mv.dataset.target || 'auto auto auto';
+      mv.fieldOfView = mv.dataset.fov || 'auto';
+    });
+  });
+
+  // "재생 / 멈춤" for models that move.
+  document.querySelectorAll('[data-toggle]').forEach((btn) => {
+    const mv = document.getElementById(btn.dataset.toggle);
+    const sync = () => { btn.textContent = mv.paused ? '재생' : '멈춤'; };
+    mv.addEventListener('play', sync);
+    mv.addEventListener('pause', sync);
+    mv.addEventListener('load', sync);
+    btn.addEventListener('click', () => {
+      if (mv.paused) { mv.play(); } else { mv.pause(); }
+    });
+  });
+
+  // 지구와 달: "크기 비교" / "실제 거리" 바꾸기.
+  (() => {
+    const mv = document.getElementById('mv-earth');
+    const srcs = {
+      size: 'models/earth_moon_size.glb?v=1',
+      distance: 'models/earth_moon_distance.glb?v=1',
+    };
+    // 실제 거리: 지구-달 가로줄(약 62m)이 화면 폭을 채우도록 카메라를 둔다.
+    const views = {
+      size: { orbit: '0deg 80deg auto', target: 'auto auto auto', fov: 'auto' },
+      distance: { orbit: null, target: '30.17m 0m 0m', fov: 'auto' },
+    };
+    // 실제 거리 화면의 카메라 거리: 세로 시야각 30도와 화면 비율로 계산해
+    // 지구(x=0)와 달(x=60.34)이 양옆에 여유를 두고 들어오게 한다.
+    const distanceOrbit = () => {
+      const r = mv.getBoundingClientRect();
+      const aspect = r.width / r.height;
+      const radius = Math.max(60, 37 / (Math.tan(15 * Math.PI / 180) * aspect));
+      return '0deg 85deg ' + Math.round(radius) + 'm';
+    };
+    const buttons = document.querySelectorAll('[data-earth-mode]');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.earthMode;
+        const v = Object.assign({}, views[mode]);
+        if (mode === 'distance') v.orbit = distanceOrbit();
+        buttons.forEach((b) => b.classList.toggle('on', b === btn));
+        mv.querySelectorAll('[data-mode]').forEach((h) => { h.hidden = h.dataset.mode !== mode; });
+        mv.setAttribute('camera-orbit', v.orbit);
+        mv.dataset.target = v.target;
+        mv.dataset.fov = v.fov;
+        mv.src = srcs[mode];
+        mv.cameraOrbit = v.orbit;
+        mv.cameraTarget = v.target;
+        mv.fieldOfView = v.fov;
+      });
+    });
+  })();
+
+  // Copy the example request.
+  document.querySelectorAll('.copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.closest('.prompt').querySelector('p').textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = '복사됨';
+      } catch (e) {
+        btn.textContent = '복사 안 됨';
+      }
+      setTimeout(() => { btn.textContent = '복사'; }, 1500);
+    });
+  });
+</script>
+</body>
+</html>
