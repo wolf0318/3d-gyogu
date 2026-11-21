@@ -59,8 +59,11 @@
   .stage { position: relative; background: var(--stage); }
   model-viewer {
     display: block; width: 100%;
+    /* model-viewer는 기본 높이(150px)를 갖고 있어서 height: auto를 줘야 4:3 비율이 적용됨 */
+    height: auto;
     aspect-ratio: 4 / 3;
     min-height: 280px;
+    max-height: 70vh;
     background: transparent;
     --poster-color: transparent;
   }
@@ -126,10 +129,10 @@
   <header>
     <p class="eyebrow">AIEP 교내 연수 자료</p>
     <h1>말로 만든 3D 교구</h1>
-    <p class="lead">Claude에게 말로 부탁해 블렌더로 만든 모형입니다. 손가락이나 마우스로 끌면 돌아가고, 두 손가락으로 벌리면 커집니다.</p>
+    <p class="lead">AI에게 말로 부탁해 블렌더로 만든 모형입니다. 손가락이나 마우스로 끌면 돌아가고, 두 손가락으로 벌리면 커집니다.</p>
     <ol class="steps">
-      <li>Claude에게 부탁</li>
-      <li>Claude가 블렌더로 제작</li>
+      <li>AI에게 부탁</li>
+      <li>AI가 블렌더로 제작</li>
       <li>웹에서 돌려 보기</li>
     </ol>
   </header>
